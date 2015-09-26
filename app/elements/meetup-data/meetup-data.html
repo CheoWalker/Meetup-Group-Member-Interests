@@ -1,0 +1,121 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/byutv-jsonp/byutv-jsonp.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/iron-image/iron-image.html">
+<dom-module id="meetup-data">
+    <style>
+        :host {
+            display: block;
+            overflow: auto;
+        }
+        .profile-display{
+            margin: auto 20px;
+        }
+        .member{
+            @apply(--layout-horizontal)
+            clear:both;
+            max-height: 350px;
+            //overflow: auto;
+            margin-bottom: 50px;
+        }
+        .topic {
+            float: left;
+            margin-right: 25px;
+        }
+        .data-input{
+            margin-bottom: 35px;
+        }
+        .clearfix:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        paper-material{
+            border-radius: 2px;
+            height: 100%;
+            padding: 16px 0 16px 0;
+            width: calc(98.66% - 16px);
+            margin: 16px auto;
+            background: white;
+            overflow: auto;
+        }
+
+    </style>
+
+    <template is="dom-bind" id="app">
+        <byutv-jsonp
+            auto
+            url="https://api.meetup.com/2/members"
+            params='{{options}}'
+            handle-as="json"
+            last-response="{{data}}">
+
+        </byutv-jsonp>
+
+        <template is="dom-repeat" items="{{data.results}}" as="result">
+            <paper-material elevation="1">
+            <section class="member">
+                <div class="profile-display">
+                    <template is="dom-if" if="{{!result.photo.photo_link}}">
+                        <iron-image style="width:200px; height:200px;" sizing="contain"  src="blank/placeholder.jpeg"></iron-image>
+                    </template>
+                    <template is="dom-if" if="{{result.photo.photo_link}}">
+                        <iron-image style="width:200px; height:200px;" sizing="cover" src="{{result.photo.photo_link}}"></iron-image>
+                    </template>
+
+                    <h1>[[result.name]]</h1>
+                </div>
+                <div class="interest">
+                    <ul class="interest-list">
+                        <h2>Member's Interests</h2>
+                        <template is="dom-repeat" items="{{result.topics}}" as="topic" index-as="topic_no">
+                            <paper-item class="topic">{{topic.name}}</paper-item>
+                        </template>
+                    </ul>
+                </div>
+            </section>
+</paper-material>
+        </template>
+
+
+    </template>
+
+    <script>
+        (function(){
+            Polymer({
+                is: 'meetup-data',
+                properties: {
+                    hasImage:{
+                       value:'{{result.photo.photo_link}}',
+                        notify:'true'
+                    },
+                    sign:{
+                        value:'false',
+                        notify:'true'
+                    },
+                    key:{
+                        value:'',
+                        notify:'true'
+                    },
+                    group_urlname:{
+                        value:'',
+                        notify:'true'
+                    },
+                    search:{
+                        value:'',
+                        notify:'true'
+                    },
+                    options:{
+                        computed:'computeOptions(sign, key, group_urlname,search)'
+                    }
+
+                },
+                computeOptions: function(sign,key,group_urlname,search){
+                    return{sign:sign, key:key, group_urlname:group_urlname, search:search}
+                }
+            });
+        })();
+    </script>
+
+</dom-module>
